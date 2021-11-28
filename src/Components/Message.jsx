@@ -3,15 +3,20 @@ import { useState } from 'react';
 import '../Styles/Message.scss';
 
 export function Message(props) {
-  const [text, setText] = useState(props.message)
-  const [isMy, setIsMy] = useState(props.isMy)
-
+  const [Content, setContent] = useState({
+    'Text': props.Content.message,
+    'User': props.Content.user,
+    'DateTime': props.Content.datetime
+  })
 
   return (
-    <div className={isMy ? 'message-container myMessage' : 'message-container'}>
-      <h4 className="user">{isMy ? 'Eu' : props.user}</h4>
+    <div className={Content.User == 'Eu' ? 'message-container myMessage' : 'message-container'}>
+      <section className="message-infos">
+        <h4 className="user">{Content.User}</h4>
+        <h5 className="datetime">{Content.DateTime}</h5>
+      </section>
       <p className="message-text">
-        {text}
+        {Content.Text}
       </p>
     </div>
   );

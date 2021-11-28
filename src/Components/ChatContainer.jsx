@@ -1,28 +1,27 @@
-import { Message } from './Message';
+import { useState, useContext, useEffect } from 'react';
+import { CurrentContactContext } from '../Contexts/CurrentContactContext';
+
+import { MessageRender } from './MessageRender';
+import { SendMessageContainer } from './SendMessage/SendMessageContainer';
 
 import '../Styles/ChatContainer.scss';
 
 export function ChatContainer() {
+  const {current, setCurrent} = useContext(CurrentContactContext)
+  const [user, setUser] = useState('')
+
+  useEffect(() => {
+    setUser(current.name)
+  }, [current])
+
   return (
     <div className="ChatContainer">
       <header className="chat-contact">
-        <span>Contato 1</span>
+        <span>{user}</span>
       </header>
       
-      <main className="chat-content">
-        <Message message={'Mensagem'} user={'Contato 1'} isMy={true} />
-        <Message message={'Mensagem'} user={'Contato 1'} isMy={false} />
-        <Message message={'Mensagem'} user={'Contato 1'} isMy={true} />
-      </main>
-
-      <footer className="send-message-container">
-        <form>
-          <input type="text" placeholder="Insira sua mensagem aqui" />
-          <button type="submit">Enviar</button>
-          <section className="message-toolbox">
-          </section>
-        </form>
-      </footer>
+      <MessageRender />
+      <SendMessageContainer />
     </div>
   );
 }

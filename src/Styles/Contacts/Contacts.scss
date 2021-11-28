@@ -1,0 +1,16 @@
+@import '../mixins';
+
+.contacts {
+  background-color: #fffafa;
+  max-width: 400px;
+  width: 25%;
+  height: 100%;
+
+  display: block;
+
+  padding: 80px 0 2rem;
+
+  @include tablet {
+    display: none;
+  }
+}

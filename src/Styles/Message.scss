@@ -13,6 +13,27 @@
   padding: 1rem 2rem 1rem 1.4rem;
   border-radius: 0.5rem;
 
+  .message-infos {
+    width: 100%;
+    min-height: 25px;
+    height: auto;
+    display: flex;
+    align-items: center;
+
+    text-align: start;
+
+    margin-bottom: 0.375rem;
+
+    .user {
+      font-size: 1.1rem;
+      margin-right: 1rem;
+    }
+
+    .datetime {
+      font-size: 1rem;
+    }
+  }
+
   &.myMessage {
     background-color: darkred;
     margin-left: auto;
