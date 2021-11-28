@@ -1,0 +1,21 @@
+$large-desktop-width: 1500px;
+$desktop-width: 1100px;
+$tablet-width: 950px;
+
+@mixin large-desktop {
+  @media screen and (min-width: $large-desktop-width) {
+    @content
+  }
+};
+
+@mixin desktop {
+  @media screen and (min-width: $desktop-width) {
+    @content
+  }
+};
+
+@mixin tablet {
+  @media screen and (min-width: $tablet-width) {
+    @content
+  }
+};
