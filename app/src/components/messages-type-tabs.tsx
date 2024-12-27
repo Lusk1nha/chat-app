@@ -40,7 +40,7 @@ export function MessagesTypeTabs(props: Readonly<IMessagesTypeTabsProps>) {
       <TabsList className="w-full h-10 justify-between px-4 rounded-3xl">
         {TABS.map((tab) => (
           <TabsTrigger
-            className="rounded-3xl"
+            className="rounded-3xl text-sm font-medium data-[state='active']:text-primary"
             key={tab.value}
             value={tab.value}
           >

@@ -6,6 +6,7 @@ import { Card, CardContent } from "../ui/card";
 import { SidebarUserContainer } from "./sidebar-user-container";
 import { MessagesWrapper } from "../messages-wrapper";
 import { MessageSquareText, Pin } from "lucide-react";
+import { ConversationTab } from "../conversation-tab/conversation-tab";
 
 export function Sidebar() {
   const [selectedTab, setSelectedTab] = useState<MessagesType | undefined>(
@@ -13,7 +14,7 @@ export function Sidebar() {
   );
 
   return (
-    <Card className="w-full h-full">
+    <Card className="w-full h-full rounded-400">
       <CardContent className="flex flex-col px-5 pt-6 pb-0 gap-y-4">
         <div className="w-full flex flex-col gap-4">
           <SidebarUserContainer />
@@ -25,7 +26,9 @@ export function Sidebar() {
 
         <div className="w-full h-full flex flex-col gap-1">
           <MessagesWrapper label="Pinned messages" icon={Pin}>
-            teste
+            {Array.from({ length: 5 }).map((_, index) => (
+              <ConversationTab key={index} />
+            ))}
           </MessagesWrapper>
 
           <MessagesWrapper label="Messages" icon={MessageSquareText}>
