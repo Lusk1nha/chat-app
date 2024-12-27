@@ -7,11 +7,22 @@ import { SidebarUserContainer } from "./sidebar-user-container";
 import { MessagesWrapper } from "../messages-wrapper";
 import { MessageSquareText, Pin } from "lucide-react";
 import { ConversationTab } from "../conversation-tab/conversation-tab";
+import { ConversationMockup } from "@/tests/conversation.mockup";
 
 export function Sidebar() {
   const [selectedTab, setSelectedTab] = useState<MessagesType | undefined>(
     "all"
   );
+
+  function generateConversation(length: number) {
+    const { list } = new ConversationMockup();
+    return list(length);
+  }
+
+  const conversations = generateConversation(10);
+  console.log({
+    conversations
+  });
 
   return (
     <Card className="w-full h-full rounded-400">
@@ -26,7 +37,7 @@ export function Sidebar() {
 
         <div className="w-full h-full flex flex-col gap-1">
           <MessagesWrapper label="Pinned messages" icon={Pin}>
-            {Array.from({ length: 5 }).map((_, index) => (
+            {conversations.map((_, index) => (
               <ConversationTab key={index} />
             ))}
           </MessagesWrapper>
