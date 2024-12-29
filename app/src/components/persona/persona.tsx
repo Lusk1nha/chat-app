@@ -13,9 +13,9 @@ export interface IPersonaProps {
 
 const sizes: Record<PersonaSizes, string> = {
   xs: "w-8 h-8",
-  sm: "w-10 h-10",
-  md: "w-12 h-12",
-  lg: "w-14 h-14"
+  sm: "w-8 h-8 md:w-10 md:h-10",
+  md: "w-10 h-10 md:w-12 md:h-12",
+  lg: "w-12 h-12 md:w-14 md:h-14"
 };
 
 export function Persona(props: Readonly<IPersonaProps>) {

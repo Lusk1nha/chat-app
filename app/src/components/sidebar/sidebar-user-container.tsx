@@ -9,7 +9,7 @@ export function SidebarUserContainer() {
         title="Lucas Pedro"
         aux="Software Engineer"
         src="https://github.com/Lusk1nha.png"
-        initials="JD"
+        initials="LP"
         size="md"
       />
 

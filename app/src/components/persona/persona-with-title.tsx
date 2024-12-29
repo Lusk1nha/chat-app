@@ -13,7 +13,7 @@ export function PersonaWithTitle(props: Readonly<IPersonaWithTitleProps>) {
       <Persona {...persona} />
 
       <div className="flex flex-col">
-        <h2 className="text-sm font-semibold">{title}</h2>
+        <h2 className="text-sm md:text-base font-semibold">{title}</h2>
         <p className="text-xs font-medium text-gray-500">{aux}</p>
       </div>
     </div>
