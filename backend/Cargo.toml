@@ -27,6 +27,8 @@ serde_json = "1.0.134"
 uuid = { version = "1.11.0", features = ["serde", "v4"] }
 regex = "1.11.1"
 bcrypt = "0.16.0"
+jsonwebtoken = "9.3.0"
+
 
 [dev-dependencies]
 # Testes e ambiente de desenvolvimento

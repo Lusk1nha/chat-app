@@ -29,9 +29,9 @@ impl SessionRepository {
     pub async fn create_user_session(
         &self,
         id: String,
-        user_id: String,
-        token: String,
-        expires_at: DateTime<chrono::Utc>,
+        user_id: &String,
+        token: &String,
+        expires_at: &DateTime<chrono::Utc>,
     ) -> Result<(), sqlx::Error> {
         sqlx::query("INSERT INTO sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)")
             .bind(id)

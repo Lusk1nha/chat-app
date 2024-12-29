@@ -7,7 +7,11 @@ use axum::{
 use sqlx::{MySql, Pool};
 
 use crate::{
-    api::{auth::signup_route, cors::configure_cors, root::health_checker},
+    api::{
+        auth::{login_route, signup_route},
+        cors::configure_cors,
+        root::health_checker,
+    },
     config::{api_state::ApiState, environment::EnvironmentConfig},
     path::{API_PATH, AUTH_PATH, ROOT_PATH},
 };
@@ -32,5 +36,6 @@ fn api_routes(state: Arc<ApiState>) -> Router {
 fn auth_routes(state: Arc<ApiState>) -> Router {
     Router::new()
         .route("/signup", post(signup_route))
+        .route("/login", post(login_route))
         .with_state(state)
 }

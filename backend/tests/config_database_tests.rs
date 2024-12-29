@@ -18,6 +18,7 @@ async fn test_fail_connect_database() {
         database_url: "invalid_url".to_string(),
         environment: "test".to_string(),
         port: 3000,
+        jwt_secret: "123".to_string(),
     };
 
     let db_pool = get_database_pool(&config).await;
