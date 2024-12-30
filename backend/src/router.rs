@@ -8,7 +8,7 @@ use sqlx::{MySql, Pool};
 
 use crate::{
     api::{
-        auth::{login_route, signup_route},
+        auth::{login_route, refresh_token_route, signup_route},
         cors::configure_cors,
         root::health_checker,
     },
@@ -35,6 +35,7 @@ fn api_routes(state: Arc<ApiState>) -> Router {
 
 fn auth_routes(state: Arc<ApiState>) -> Router {
     Router::new()
+        .route("/refresh", post(refresh_token_route))
         .route("/signup", post(signup_route))
         .route("/login", post(login_route))
         .with_state(state)

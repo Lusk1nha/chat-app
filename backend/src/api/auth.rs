@@ -4,11 +4,21 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
 use crate::{
     config::api_state::ApiState,
-    models::auth_model::{LoginRequest, SignUpRequest},
+    models::{
+        auth_model::{
+            LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, SignUpRequest,
+        },
+        user_model::User,
+    },
     repositories::{session_repository::SessionRepository, user_repository::UserRepository},
     services::{session_service::SessionService, user_service::UserService},
     utils::{
         errors::ErrorResponse,
+        session::{
+            create_access_expires_at, create_refresh_expires_at, generate_access_token,
+            generate_refresh_token,
+        },
+        token::create_jwt_token,
         validation::{is_valid_email, is_valid_password},
     },
 };
@@ -21,7 +31,6 @@ pub async fn signup_route(
     let password = body.password.clone();
 
     if !is_valid_email(email.as_str()) {
-        println!("Invalid email: {}", email);
         return Err(ErrorResponse {
             message: "Invalid email".to_string(),
             status_code: StatusCode::BAD_REQUEST,
@@ -29,7 +38,6 @@ pub async fn signup_route(
     }
 
     if !is_valid_password(password.as_str()) {
-        println!("Invalid password: {}", password);
         return Err(ErrorResponse {
             message: "Invalid password".to_string(),
             status_code: StatusCode::BAD_REQUEST,
@@ -67,10 +75,10 @@ pub async fn login_route(
 ) -> Result<impl IntoResponse, ErrorResponse> {
     let email = body.email.clone();
     let password = body.password.clone();
-    let maintain_session = body.maintain_session.unwrap_or(false);
+
+    let secret = state.environment.jwt_secret.clone();
 
     if !is_valid_email(email.as_str()) {
-        println!("Invalid email: {}", email);
         return Err(ErrorResponse {
             message: "Invalid email".to_string(),
             status_code: StatusCode::BAD_REQUEST,
@@ -78,7 +86,6 @@ pub async fn login_route(
     }
 
     if !is_valid_password(password.as_str()) {
-        println!("Invalid password: {}", password);
         return Err(ErrorResponse {
             message: "Invalid password".to_string(),
             status_code: StatusCode::BAD_REQUEST,
@@ -103,7 +110,7 @@ pub async fn login_route(
         });
     }
 
-    let user: crate::models::user_model::User = user_result.unwrap();
+    let user: User = user_result.unwrap();
 
     if !user.verify_password(password.as_str()).unwrap() {
         return Err(ErrorResponse {
@@ -115,15 +122,71 @@ pub async fn login_route(
     let session_repo = SessionRepository::new(state.db.clone());
     let session_service = SessionService::new(session_repo, state.environment.jwt_secret.clone());
 
-    println!("Creating session for user: {:?}", user);
+    let new_expires_access_at = create_access_expires_at();
+    let new_expires_refresh_at = create_refresh_expires_at();
 
-    let session_result = session_service
-        .create_session(&user.id)
+    let new_access_token =
+        generate_access_token(&user.id, &secret).expect("Failed to generate access token");
+    let new_refresh_token =
+        generate_refresh_token(&user.id, &secret).expect("Failed to generate refresh token");
+
+    Ok(Json(LoginResponse {
+        access_token: new_access_token,
+        message: "Login successful".to_string(),
+    }))
+}
+
+pub async fn refresh_token_route(
+    State(state): State<Arc<ApiState>>,
+    Json(body): Json<RefreshTokenRequest>,
+) -> Result<impl IntoResponse, ErrorResponse> {
+    let refresh_token = body.refresh_token.clone();
+    let secret = state.environment.jwt_secret.clone();
+
+    let session_repo = SessionRepository::new(state.db.clone());
+    let session_service = SessionService::new(session_repo, state.environment.jwt_secret.clone());
+
+    let session = session_service
+        .find_session_by_refresh_token(&refresh_token)
         .await
         .map_err(|e| ErrorResponse {
-            message: e.to_string(),
+            message: "Invalid refresh token, error: ".to_string() + e.to_string().as_str(),
             status_code: StatusCode::INTERNAL_SERVER_ERROR,
         })?;
 
-    Ok(Json(user))
+    if session.is_none() {
+        return Err(ErrorResponse {
+            message: "Invalid refresh token".to_string(),
+            status_code: StatusCode::UNAUTHORIZED,
+        });
+    }
+
+    let session = session.unwrap();
+
+    let new_expires_access_at = create_access_expires_at();
+    let new_expires_refresh_at = create_refresh_expires_at();
+
+    let new_access_token =
+        generate_access_token(&session.user_id, &secret).expect("Failed to generate access token");
+    let new_refresh_token = generate_refresh_token(&session.user_id, &secret)
+        .expect("Failed to generate refresh token");
+
+    session_service
+        .update_session(
+            &session.id,
+            &new_access_token,
+            &new_refresh_token,
+            &new_expires_access_at,
+            &new_expires_refresh_at,
+        )
+        .await
+        .map_err(|e| ErrorResponse {
+            message: "Failed to update session, error: ".to_string() + e.to_string().as_str(),
+            status_code: StatusCode::INTERNAL_SERVER_ERROR,
+        })?;
+
+    Ok(Json(RefreshTokenResponse {
+        access_token: new_access_token,
+        refresh_token: new_refresh_token,
+    }))
 }

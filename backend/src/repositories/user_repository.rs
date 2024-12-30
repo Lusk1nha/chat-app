@@ -36,8 +36,6 @@ impl UserRepository {
                 .execute(&self.pool)
                 .await?;
 
-        println!("Response: {:?}", response);
-
         let user = sqlx::query_as::<_, ProtectedUser>(
             "SELECT id, email, last_login, is_active, created_at, updated_at FROM users WHERE id = ?",
         ).bind(response.last_insert_id()).fetch_one(&self.pool).await?;
