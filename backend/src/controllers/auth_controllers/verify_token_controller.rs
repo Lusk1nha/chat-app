@@ -39,9 +39,11 @@ pub async fn verify_token_controller(
         }));
     }
 
-    Ok(Json(VerifyTokenResponse {
+    let body = VerifyTokenResponse {
         valid: true,
         decoded: claims,
         error: None,
-    }))
+    };
+
+    Ok(Json(body))
 }

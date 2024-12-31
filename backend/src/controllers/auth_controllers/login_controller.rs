@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum_extra::extract::cookie::{Cookie, CookieJar};
 
 use crate::{
     config::api_state::ApiState,
@@ -8,6 +9,7 @@ use crate::{
     repositories::{session_repository::SessionRepository, user_repository::UserRepository},
     services::{session_service::SessionService, user_service::UserService},
     utils::{
+        cookie::get_refresh_token_cookie,
         errors::ErrorResponse,
         session::{generate_jwt_token, ACCESS_EXPIRES_AT, REFRESH_EXPIRES_AT},
     },
@@ -17,6 +19,7 @@ pub async fn login_controller(
     email: String,
     password: String,
     state: Arc<ApiState>,
+    jar: CookieJar,
 ) -> Result<impl IntoResponse, ErrorResponse> {
     let user_repo = UserRepository::new(state.db.clone());
     let user_service = UserService::new(user_repo);
@@ -86,8 +89,20 @@ pub async fn login_controller(
             status_code: StatusCode::INTERNAL_SERVER_ERROR,
         })?;
 
-    Ok(Json(LoginResponse {
+    user_service
+        .update_user_last_login(&user.id)
+        .await
+        .map_err(|e| ErrorResponse {
+            message: e.to_string(),
+            status_code: StatusCode::INTERNAL_SERVER_ERROR,
+        })?;
+
+    let jar = get_refresh_token_cookie(refresh_token, jar);
+
+    let body = LoginResponse {
         access_token: access_token,
         message: "Login successful".to_string(),
-    }))
+    };
+
+    Ok((StatusCode::OK, jar, Json(body)))
 }

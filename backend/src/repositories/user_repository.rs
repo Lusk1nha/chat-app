@@ -12,12 +12,11 @@ impl UserRepository {
     }
 
     pub async fn find_user_by_email(&self, email: &str) -> Result<Option<User>, sqlx::Error> {
-        let user = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, last_login, is_active, created_at, updated_at FROM users WHERE email = ?",
-        )
-        .bind(email)
-        .fetch_optional(&self.pool)
-        .await?;
+        const QUERY: &str = "SELECT id, email, password_hash, last_login, is_active, created_at, updated_at FROM users WHERE email = ?";
+        let user = sqlx::query_as::<_, User>(QUERY)
+            .bind(email)
+            .fetch_optional(&self.pool)
+            .await?;
 
         Ok(user)
     }
@@ -28,20 +27,36 @@ impl UserRepository {
         email: &str,
         password_hash: &str,
     ) -> Result<ProtectedUser, sqlx::Error> {
-        let id = sqlx::query("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
-            .bind(id)
-            .bind(email)
-            .bind(password_hash)
-            .execute(&self.pool)
-            .await?
-            .last_insert_id();
+        const CREATE_USER_QUERY: &str =
+            "INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)";
 
-        let user = sqlx::query_as::<_, ProtectedUser>(
-            "SELECT id, email, last_login, is_active, created_at, updated_at FROM users WHERE id = ?",
-        ).bind(id)
-        .fetch_one(&self.pool)
-        .await?;
+        sqlx::query(CREATE_USER_QUERY)
+            .bind(&id)
+            .bind(&email)
+            .bind(&password_hash)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+
+        const GET_USER_QUERY: &str = "SELECT id, email, last_login, is_active, created_at, updated_at FROM users WHERE id = ?";
+
+        let user = sqlx::query_as::<_, ProtectedUser>(GET_USER_QUERY)
+            .bind(id)
+            .fetch_one(&self.pool)
+            .await?;
 
         Ok(user)
+    }
+
+    pub async fn update_user_last_login(&self, id: &str) -> Result<(), sqlx::Error> {
+        const QUERY: &str = "UPDATE users SET last_login = NOW() WHERE id = ?";
+
+        sqlx::query(QUERY)
+            .bind(id)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+
+        Ok(())
     }
 }

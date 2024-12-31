@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 pub struct Claims {
     pub sub: String,
     pub exp: usize,
+
+    pub iat: usize,
 }
 
 pub fn create_jwt_token(
@@ -12,9 +14,12 @@ pub fn create_jwt_token(
     secret: &String,
     exp: usize,
 ) -> Result<String, jsonwebtoken::errors::Error> {
+    let iat = chrono::Utc::now().timestamp() as usize;
+
     let claims = Claims {
         sub: user_id.clone(),
         exp,
+        iat,
     };
 
     encode(

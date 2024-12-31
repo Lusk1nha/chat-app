@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum_extra::extract::{cookie::Cookie, CookieJar};
 
 use crate::{
     config::api_state::ApiState,
@@ -8,6 +9,7 @@ use crate::{
     repositories::{session_repository::SessionRepository, user_repository::UserRepository},
     services::{session_service::SessionService, user_service::UserService},
     utils::{
+        cookie::get_refresh_token_cookie,
         errors::ErrorResponse,
         session::{generate_jwt_token, ACCESS_EXPIRES_AT, REFRESH_EXPIRES_AT},
     },
@@ -17,6 +19,7 @@ pub async fn signup_controller(
     email: String,
     password: String,
     state: Arc<ApiState>,
+    jar: CookieJar,
 ) -> Result<impl IntoResponse, ErrorResponse> {
     let user_repo = UserRepository::new(state.db.clone());
     let user_service = UserService::new(user_repo);
@@ -64,11 +67,11 @@ pub async fn signup_controller(
             status_code: StatusCode::INTERNAL_SERVER_ERROR,
         })?;
 
-    Ok((
-        StatusCode::CREATED,
-        Json(SignUpResponse {
-            access_token,
-            message: "User created successfully".to_string(),
-        }),
-    ))
+    let jar = get_refresh_token_cookie(refresh_token, jar);
+    let body = SignUpResponse {
+        access_token,
+        message: "User created successfully".to_string(),
+    };
+
+    Ok((StatusCode::CREATED, jar, Json(body)))
 }

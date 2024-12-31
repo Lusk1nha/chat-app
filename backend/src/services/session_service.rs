@@ -22,6 +22,16 @@ impl SessionService {
             .await
     }
 
+    pub async fn find_session_by_user_and_refresh_token(
+        &self,
+        user_id: &String,
+        refresh_token: &String,
+    ) -> Result<Option<Session>, sqlx::Error> {
+        self.repository
+            .find_session_by_user_and_refresh_token(user_id, refresh_token)
+            .await
+    }
+
     pub async fn find_session_by_token(
         &self,
         token: &String,
@@ -74,8 +84,9 @@ impl SessionService {
 
     pub async fn delete_session_by_refresh_token(
         &self,
+        user_id: &String,
         refresh_token: &String,
     ) -> Result<(), sqlx::Error> {
-        self.repository.delete_session(refresh_token).await
+        self.repository.delete_session(user_id, refresh_token).await
     }
 }

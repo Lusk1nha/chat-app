@@ -32,6 +32,10 @@ impl UserService {
 
         self.repository.create_user(id, email, &password).await
     }
+
+    pub async fn update_user_last_login(&self, id: &str) -> Result<(), sqlx::Error> {
+        self.repository.update_user_last_login(id).await
+    }
 }
 
 fn create_hashed_password(password: &str) -> Result<String, bcrypt::BcryptError> {

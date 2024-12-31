@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum_extra::extract::CookieJar;
 
 use crate::{
     config::api_state::ApiState,
@@ -8,6 +9,7 @@ use crate::{
     repositories::session_repository::SessionRepository,
     services::session_service::SessionService,
     utils::{
+        cookie::get_refresh_token_cookie,
         errors::ErrorResponse,
         session::{self, ACCESS_EXPIRES_AT, REFRESH_EXPIRES_AT},
     },
@@ -17,6 +19,7 @@ pub async fn refresh_token_controller(
     refresh_token: String,
     secret: String,
     state: Arc<ApiState>,
+    jar: CookieJar,
 ) -> Result<impl IntoResponse, ErrorResponse> {
     let session_repo = SessionRepository::new(state.db.clone());
     let session_service = SessionService::new(session_repo, state.environment.jwt_secret.clone());
@@ -67,8 +70,12 @@ pub async fn refresh_token_controller(
             status_code: StatusCode::INTERNAL_SERVER_ERROR,
         })?;
 
-    Ok(Json(RefreshTokenResponse {
+    let jar = get_refresh_token_cookie(refresh_token, jar);
+
+    let body = RefreshTokenResponse {
         access_token,
-        refresh_token,
-    }))
+        message: "Token refreshed successfully".to_string(),
+    };
+
+    Ok((StatusCode::OK, jar, Json(body)))
 }
