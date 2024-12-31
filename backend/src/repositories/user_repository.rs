@@ -28,17 +28,19 @@ impl UserRepository {
         email: &str,
         password_hash: &str,
     ) -> Result<ProtectedUser, sqlx::Error> {
-        let response =
-            sqlx::query("INSERT INTO users (id,  email, password_hash) VALUES (?, ?, ?)")
-                .bind(id)
-                .bind(email)
-                .bind(password_hash)
-                .execute(&self.pool)
-                .await?;
+        let id = sqlx::query("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+            .bind(id)
+            .bind(email)
+            .bind(password_hash)
+            .execute(&self.pool)
+            .await?
+            .last_insert_id();
 
         let user = sqlx::query_as::<_, ProtectedUser>(
             "SELECT id, email, last_login, is_active, created_at, updated_at FROM users WHERE id = ?",
-        ).bind(response.last_insert_id()).fetch_one(&self.pool).await?;
+        ).bind(id)
+        .fetch_one(&self.pool)
+        .await?;
 
         Ok(user)
     }

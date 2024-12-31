@@ -31,9 +31,24 @@ impl SessionRepository {
         refresh_token: &String,
     ) -> Result<Option<Session>, sqlx::Error> {
         let session = sqlx::query_as::<_, Session>(
-            "SELECT id, user_id, access_token, refresh_token, access_token_expires_at, refresh_token_expires_at, created_at, updated_at FROM sessions WHERE refresh_token = ?",
+            "SELECT id, user_id, access_token, refresh_token, access_token_expires_at, refresh_token_expires_at, created_at, updated_at FROM sessions WHERE refresh_token = ? AND refresh_token_expires_at > NOW()",
         )
         .bind(refresh_token)
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(session)
+    }
+
+    pub async fn find_session_by_refresh_or_access_token(
+        &self,
+        token: &String,
+    ) -> Result<Option<Session>, sqlx::Error> {
+        let session = sqlx::query_as::<_, Session>(
+            "SELECT id, user_id, access_token, refresh_token, access_token_expires_at, refresh_token_expires_at, created_at, updated_at FROM sessions WHERE access_token = ? OR refresh_token = ?",
+        )
+        .bind(token)
+        .bind(token)
         .fetch_optional(&self.pool)
         .await?;
 
@@ -46,8 +61,8 @@ impl SessionRepository {
         user_id: &String,
         access_token: &String,
         refresh_token: &String,
-        access_token_expires_at: DateTime<chrono::Utc>,
-        refresh_token_expires_at: DateTime<chrono::Utc>,
+        access_token_expires_at: &DateTime<chrono::Utc>,
+        refresh_token_expires_at: &DateTime<chrono::Utc>,
     ) -> Result<(), sqlx::Error> {
         sqlx::query(
             "INSERT INTO sessions (id, user_id, access_token, refresh_token, access_token_expires_at, refresh_token_expires_at) VALUES (?, ?, ?, ?, ?, ?)",
@@ -82,6 +97,15 @@ impl SessionRepository {
         .bind(id)
         .execute(&self.pool)
         .await?;
+
+        Ok(())
+    }
+
+    pub async fn delete_session(&self, refresh_token: &String) -> Result<(), sqlx::Error> {
+        sqlx::query("DELETE FROM sessions WHERE refresh_token = ?")
+            .bind(refresh_token)
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }

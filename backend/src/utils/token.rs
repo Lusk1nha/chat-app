@@ -35,3 +35,7 @@ pub fn decode_jwt_token(
     )
     .map(|data| data.claims)
 }
+
+pub fn is_valid_jwt_token(token: &String, secret: &str) -> bool {
+    decode_jwt_token(token, secret).is_ok()
+}

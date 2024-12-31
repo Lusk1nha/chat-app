@@ -1,12 +1,13 @@
 mod api;
 mod config;
+mod controllers;
 mod models;
 mod path;
 mod repositories;
 mod router;
 mod server;
 mod services;
-pub mod utils;
+mod utils;
 
 use chat_app_api::router::generate_routes;
 use chat_app_api::{
