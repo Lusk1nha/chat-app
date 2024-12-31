@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use axum::{
+    extract::State,
     middleware::from_fn,
+    response::IntoResponse,
     routing::{get, post},
     Router,
 };
@@ -60,6 +62,6 @@ fn protected_routes(state: Arc<ApiState>) -> Router {
         .with_state(state)
 }
 
-async fn teste_route() -> &'static str {
-    "Hello, World!"
+async fn teste_route(State(state): State<Arc<ApiState>>) -> impl IntoResponse {
+    state.environment.database_url.to_string()
 }
