@@ -1,3 +1,4 @@
+pub mod auth_middleware_controller;
 pub mod login_controller;
 pub mod logout_controller;
 pub mod refresh_token_controller;

@@ -56,6 +56,22 @@ impl SessionRepository {
         Ok(session)
     }
 
+    pub async fn find_session_by_user_and_access_token(
+        &self,
+        user_id: &String,
+        access_token: &String,
+    ) -> Result<Option<Session>, sqlx::Error> {
+        const QUERY: &str = "SELECT id, user_id, access_token, refresh_token, access_token_expires_at, refresh_token_expires_at, created_at, updated_at FROM sessions WHERE user_id = ? AND access_token = ? AND access_token_expires_at > NOW()";
+
+        let session = sqlx::query_as::<_, Session>(QUERY)
+            .bind(user_id)
+            .bind(access_token)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        Ok(session)
+    }
+
     pub async fn find_session_by_refresh_or_access_token(
         &self,
         token: &String,

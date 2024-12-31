@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
 use axum::{
+    middleware::from_fn,
     routing::{get, post},
     Router,
 };
 use sqlx::{MySql, Pool};
+use tower::ServiceBuilder;
 
 use crate::{
     api::{
@@ -13,6 +15,7 @@ use crate::{
         root::health_checker,
     },
     config::{api_state::ApiState, environment::EnvironmentConfig},
+    middlewares::auth_middleware::auth_middleware,
     path::{API_PATH, AUTH_PATH, ROOT_PATH},
 };
 
@@ -31,6 +34,7 @@ fn api_routes(state: Arc<ApiState>) -> Router {
     Router::new()
         .route(ROOT_PATH, get(health_checker))
         .nest(AUTH_PATH, auth_routes)
+        .nest("/protected", protected_routes(state))
 }
 
 fn auth_routes(state: Arc<ApiState>) -> Router {
@@ -41,4 +45,21 @@ fn auth_routes(state: Arc<ApiState>) -> Router {
         .route("/refresh", post(refresh_token_route))
         .route("/verify", post(verify_token_route))
         .with_state(state)
+}
+
+fn protected_routes(state: Arc<ApiState>) -> Router {
+    Router::new()
+        .route("/teste", get(teste_route))
+        .layer(ServiceBuilder::new().layer(from_fn({
+            let app_state = state.clone(); // Clone app_state for the async block
+            move |req, next| {
+                let state = app_state.clone(); // Clone for use in the async block
+                async move { auth_middleware(req, next, state).await }
+            }
+        })))
+        .with_state(state)
+}
+
+async fn teste_route() -> &'static str {
+    "Hello, World!"
 }

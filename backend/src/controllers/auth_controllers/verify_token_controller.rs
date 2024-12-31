@@ -24,7 +24,7 @@ pub async fn verify_token_controller(
     let session_service = SessionService::new(session_repo, state.environment.jwt_secret.clone());
 
     let session = session_service
-        .find_session_by_token(&token)
+        .find_session_by_refresh_or_access_token(&token)
         .await
         .map_err(|e| ErrorResponse {
             message: e.to_string(),

@@ -32,12 +32,22 @@ impl SessionService {
             .await
     }
 
-    pub async fn find_session_by_token(
+    pub async fn find_session_by_refresh_or_access_token(
         &self,
         token: &String,
     ) -> Result<Option<Session>, sqlx::Error> {
         self.repository
             .find_session_by_refresh_or_access_token(token)
+            .await
+    }
+
+    pub async fn find_access_token(
+        &self,
+        user_id: &String,
+        access_token: &String,
+    ) -> Result<Option<Session>, sqlx::Error> {
+        self.repository
+            .find_session_by_user_and_access_token(user_id, access_token)
             .await
     }
 
