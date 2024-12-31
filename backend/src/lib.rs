@@ -1,6 +1,7 @@
 pub mod api;
 pub mod config;
 pub mod controllers;
+pub mod middlewares;
 pub mod models;
 pub mod path;
 pub mod repositories;

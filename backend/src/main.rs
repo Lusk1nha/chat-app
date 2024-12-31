@@ -1,6 +1,7 @@
 mod api;
 mod config;
 mod controllers;
+mod middlewares;
 mod models;
 mod path;
 mod repositories;
