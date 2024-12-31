@@ -11,3 +11,7 @@ pub fn is_valid_email(email: &str) -> bool {
 pub fn is_valid_password(password: &str) -> bool {
     password.len() >= PASSWORD_LENGTH
 }
+
+pub fn is_valid_confirm_password(password: &str, confirm_password: &str) -> bool {
+    password == confirm_password
+}

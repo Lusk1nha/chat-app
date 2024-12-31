@@ -9,6 +9,5 @@ CREATE TABLE
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data de criação
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Última atualização
     INDEX idx_user_id (user_id), -- Índice para consultas por user_id
-    INDEX idx_display_name (display_name), -- Índice para buscas por display_name
-    CONSTRAINT FK_UserProfile FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+    CONSTRAINT FK_UserProfile FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

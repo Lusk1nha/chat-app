@@ -7,8 +7,11 @@ pub struct Session {
     pub id: String,
     pub user_id: String,
 
-    pub token: String,
-    pub expires_at: DateTime<chrono::Utc>,
+    pub access_token: String,
+    pub refresh_token: String,
+
+    pub access_token_expires_at: DateTime<chrono::Utc>,
+    pub refresh_token_expires_at: DateTime<chrono::Utc>,
 
     pub created_at: DateTime<chrono::Utc>,
     pub updated_at: DateTime<chrono::Utc>,
@@ -17,6 +20,12 @@ pub struct Session {
 #[derive(Debug, Deserialize)]
 pub struct CreateSessionRequest {
     pub user_id: String,
-    pub token: String,
+
+    pub access_token: String,
+    pub refresh_token: String,
+
+    pub access_token_expires_at: DateTime<chrono::Utc>,
+    pub refresh_token_expires_at: DateTime<chrono::Utc>,
+
     pub expires_at: DateTime<chrono::Utc>,
 }

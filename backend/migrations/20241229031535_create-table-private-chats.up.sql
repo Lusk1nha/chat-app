@@ -5,6 +5,7 @@ CREATE TABLE
     user_one_id CHAR(36) NOT NULL, -- Primeiro usuário na conversa
     user_two_id CHAR(36) NOT NULL, -- Segundo usuário na conversa
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data de criação da conversa
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Última atualizaçãoMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Última atualização
     INDEX idx_user_one_id (user_one_id), -- Índice para facilitar consultas por user_one_id
     INDEX idx_user_two_id (user_two_id), -- Índice para facilitar consultas por user_two_id
     CONSTRAINT FK_UserOne FOREIGN KEY (user_one_id) REFERENCES Users (id) ON DELETE CASCADE,

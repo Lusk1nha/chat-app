@@ -13,5 +13,9 @@ pub fn validate_config(config: &EnvironmentConfig) -> Result<(), String> {
         return Err("Port is not set".to_string());
     }
 
+    if config.jwt_secret.is_empty() {
+        return Err("JWT Secret is not set".to_string());
+    }
+
     Ok(())
 }

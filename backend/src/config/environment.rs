@@ -6,6 +6,8 @@ pub struct EnvironmentConfig {
     pub database_url: String,
     pub environment: String,
     pub port: u16,
+
+    pub jwt_secret: String,
 }
 
 impl EnvironmentConfig {
@@ -19,10 +21,13 @@ impl EnvironmentConfig {
             .parse()
             .expect("PORT must be a number");
 
+        let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+
         Self {
             database_url,
             environment,
             port,
+            jwt_secret,
         }
     }
 }
