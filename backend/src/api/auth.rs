@@ -86,9 +86,11 @@ pub async fn login_route(
 pub async fn logout_route(
     jar: CookieJar,
     State(state): State<Arc<ApiState>>,
-    Json(body): Json<LogoutRequest>,
 ) -> Result<impl IntoResponse, ErrorResponse> {
-    let refresh_token = body.refresh_token.clone();
+    let refresh_token = jar
+        .get("refresh_token")
+        .map(|cookie| cookie.value().to_string())
+        .unwrap_or_default();
 
     if !is_valid_jwt_token(&refresh_token, &state.environment.jwt_secret) {
         return Err(ErrorResponse {
@@ -103,9 +105,14 @@ pub async fn logout_route(
 pub async fn refresh_token_route(
     jar: CookieJar,
     State(state): State<Arc<ApiState>>,
-    Json(body): Json<RefreshTokenRequest>,
 ) -> Result<impl IntoResponse, ErrorResponse> {
-    let refresh_token = body.refresh_token.clone();
+    let refresh_token = jar
+        .get("refresh_token")
+        .map(|cookie| cookie.value().to_string())
+        .unwrap_or_default();
+
+    println!("refresh_token: {}", refresh_token);
+
     let secret = state.environment.jwt_secret.clone();
 
     if !is_valid_jwt_token(&refresh_token, &secret) {
@@ -119,10 +126,13 @@ pub async fn refresh_token_route(
 }
 
 pub async fn verify_token_route(
+    jar: CookieJar,
     State(state): State<Arc<ApiState>>,
-    Json(body): Json<VerifyTokenRequest>,
 ) -> Result<impl IntoResponse, ErrorResponse> {
-    let refresh_token = body.token.clone();
+    let refresh_token = jar
+        .get("refresh_token")
+        .map(|cookie| cookie.value().to_string())
+        .unwrap_or_default();
     let secret = state.environment.jwt_secret.clone();
 
     if !is_valid_jwt_token(&refresh_token, &secret) {

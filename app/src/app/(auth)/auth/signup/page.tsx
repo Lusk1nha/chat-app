@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthHeader } from "../_components/auth-header";
+import { AuthHeader } from "../../_components/auth-header";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -12,13 +12,15 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-import { AuthRedirect } from "../_components/auth-redirect";
+import { AuthRedirect } from "../../_components/auth-redirect";
 import { FormInput } from "@/components/inputs/form-input";
 import { Path } from "@/shared/enums/Path.enum";
-import { AuthCard } from "../_components/auth-card";
+import { AuthCard } from "../../_components/auth-card";
+import authService from "@/shared/factories/auth-factory";
+import { toast } from "sonner";
 
 export default function SignupPage() {
-  const form = useForm({
+  const form = useForm<SignupValidationType>({
     resolver: zodResolver(signupValidation),
     defaultValues: {
       email: "",
@@ -28,7 +30,30 @@ export default function SignupPage() {
   });
 
   async function handleSubmit(data: SignupValidationType) {
-    console.log("submitting form", form);
+    const response = signupValidation.parse(data);
+
+    try {
+      toast("Signing up...", {
+        id: "signup",
+        description: "Please wait while we sign you up."
+      });
+
+      await authService.signup(response);
+
+      toast("Successfully signed up!", {
+        id: "signup",
+        description: "You have been successfully signed up.",
+        richColors: true
+      });
+    } catch (error) {
+      toast("Failed to sign up", {
+        id: "signup",
+        description: "An error occurred while signing you up.",
+        richColors: true
+      });
+
+      console.error(error);
+    }
   }
 
   return (
@@ -79,7 +104,14 @@ export default function SignupPage() {
             required
           />
 
-          <Button type="submit">Sign Up</Button>
+          <Button
+            type="submit"
+            disabled={
+              form.formState.isSubmitting || form.formState.isSubmitSuccessful
+            }
+          >
+            Sign Up
+          </Button>
         </form>
       </Form>
 

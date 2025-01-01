@@ -19,7 +19,7 @@ export function AuthHeader(props: Readonly<IAuthHeaderProps>) {
     >
       <div className="flex flex-col items-center justify-center gap-y-2">
         <Logo />
-        <h2 className="text-2xl font-bold text-center">{title}</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-center">{title}</h2>
         <h5 className="text-sm text-muted-foreground text-center">
           {subtitle}
         </h5>

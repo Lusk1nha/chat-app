@@ -10,15 +10,21 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useForm } from "react-hook-form";
-import { AuthHeader } from "../_components/auth-header";
-import { AuthRedirect } from "../_components/auth-redirect";
+import { AuthHeader } from "../../_components/auth-header";
+import { AuthRedirect } from "../../_components/auth-redirect";
 import { Separator } from "@/components/ui/separator";
 import { FormInput } from "@/components/inputs/form-input";
 import { Form } from "@/components/ui/form";
 import Link from "next/link";
-import { AuthCard } from "../_components/auth-card";
+import { AuthCard } from "../../_components/auth-card";
+
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export default function LoginPage() {
+  const { login } = useAuth();
+
   const form = useForm({
     resolver: zodResolver(loginValidation),
     defaultValues: {
@@ -27,8 +33,41 @@ export default function LoginPage() {
     }
   });
 
-  async function handleSubmit(data: LoginValidationType) {
-    console.log("submitting form", form);
+  async function handleSubmit(form: LoginValidationType) {
+    const data = loginValidation.parse(form);
+
+    toast("Logging in...", {
+      id: "login",
+      description: "Please wait while we log you in."
+    });
+
+    try {
+      toast("Logged in successfully!", {
+        id: "login",
+        description: "You have been successfully logged in.",
+        richColors: true
+      });
+
+      await login(data);
+
+      toast("Successfully logged in!", {
+        id: "login",
+        description: "You have been successfully logged in.",
+        richColors: true
+      });
+
+      setTimeout(() => {
+        redirect(Path.Home);
+      }, 2000);
+    } catch (error) {
+      toast("An error occurred", {
+        id: "login",
+        description: "An error occurred while trying to log you in.",
+        richColors: true
+      });
+
+      console.error(error);
+    }
   }
 
   return (
@@ -67,7 +106,14 @@ export default function LoginPage() {
             required
           />
 
-          <Button type="submit">Login</Button>
+          <Button
+            type="submit"
+            disabled={
+              form.formState.isSubmitting || form.formState.isSubmitSuccessful
+            }
+          >
+            Login
+          </Button>
         </form>
       </Form>
 
