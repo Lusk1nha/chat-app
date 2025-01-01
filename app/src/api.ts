@@ -17,7 +17,7 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       originalRequest.url.includes(Path.AuthGroup)
     ) {
-      return Promise.reject(new Error("Invalid credentials"));
+      return Promise.reject(new Error(error.message));
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
