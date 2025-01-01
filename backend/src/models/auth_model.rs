@@ -66,3 +66,9 @@ pub struct VerifyTokenResponse {
     pub decoded: Claims,
     pub error: Option<String>,
 }
+
+#[derive(Debug, Serialize)]
+pub struct ValidateSessionResponse {
+    pub valid: bool,
+    pub message: String,
+}

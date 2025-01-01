@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
@@ -11,11 +11,11 @@ pub struct User {
     pub email: String,
     pub password_hash: String,
 
-    pub last_login: Option<DateTime<chrono::Utc>>,
+    pub last_login: Option<DateTime<Utc>>,
     pub is_active: bool,
 
-    pub created_at: DateTime<chrono::Utc>,
-    pub updated_at: DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl User {
@@ -23,10 +23,10 @@ impl User {
         id: String,
         email: String,
         password_hash: String,
-        last_login: Option<DateTime<chrono::Utc>>,
+        last_login: Option<DateTime<Utc>>,
         is_active: bool,
-        created_at: DateTime<chrono::Utc>,
-        updated_at: DateTime<chrono::Utc>,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
     ) -> Self {
         Self {
             id,
@@ -49,10 +49,10 @@ pub struct ProtectedUser {
     pub id: String,
 
     pub email: String,
-    pub last_login: Option<DateTime<chrono::Utc>>,
+    pub last_login: Option<DateTime<Utc>>,
     pub is_active: bool,
-    pub created_at: DateTime<chrono::Utc>,
-    pub updated_at: DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -66,6 +66,6 @@ pub struct CreateUserRequest {
 pub struct UserUpdate {
     pub email: Option<String>,
     pub password: Option<String>,
-    pub last_login: Option<DateTime<chrono::Utc>>,
+    pub last_login: Option<DateTime<Utc>>,
     pub is_active: Option<bool>,
 }
