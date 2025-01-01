@@ -17,7 +17,7 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       originalRequest.url.includes(Path.AuthGroup)
     ) {
-      return Promise.reject(new Error(error.message));
+      return Promise.reject(error);
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {

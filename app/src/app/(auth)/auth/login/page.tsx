@@ -33,8 +33,8 @@ export default function LoginPage() {
     }
   });
 
-  async function handleSubmit(form: LoginValidationType) {
-    const data = loginValidation.parse(form);
+  async function handleSubmit(response: LoginValidationType) {
+    const data = loginValidation.parse(response);
 
     toast("Logging in...", {
       id: "login",
@@ -57,16 +57,14 @@ export default function LoginPage() {
       });
 
       setTimeout(() => {
-        redirect(Path.Home);
-      }, 2000);
-    } catch (error) {
+        redirect(Path.DashboardGroup);
+      }, 1000);
+    } catch (error: any) {
       toast("An error occurred", {
         id: "login",
-        description: "An error occurred while trying to log you in.",
+        description: error.message,
         richColors: true
       });
-
-      console.error(error);
     }
   }
 
@@ -106,12 +104,7 @@ export default function LoginPage() {
             required
           />
 
-          <Button
-            type="submit"
-            disabled={
-              form.formState.isSubmitting || form.formState.isSubmitSuccessful
-            }
-          >
+          <Button type="submit" disabled={form.formState.isSubmitting}>
             Login
           </Button>
         </form>
@@ -128,13 +121,8 @@ export default function LoginPage() {
 
 function RedirectForgotPassword() {
   return (
-    <p>
-      <Link
-        className="text-muted-foreground text-sm underline"
-        href={Path.Forgot}
-      >
-        Forgot
-      </Link>
+    <p className="text-muted-foreground text-sm underline hover:text-primary">
+      <Link href={Path.Forgot}>Forgot</Link>
     </p>
   );
 }

@@ -7,14 +7,16 @@ import {
   FormLabel,
   FormMessage
 } from "../ui/form";
-import { Input } from "../ui/input";
-import { HTMLProps } from "react";
 
-interface IFormInputProps<T extends FieldValues> {
+import { HTMLProps } from "react";
+import { Textarea } from "../ui/textarea";
+
+interface IFormTextAreaProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
   control: Control<T>;
-  field: HTMLProps<HTMLInputElement>;
+
+  field?: HTMLProps<HTMLTextAreaElement>;
 
   required?: boolean;
 
@@ -23,8 +25,8 @@ interface IFormInputProps<T extends FieldValues> {
   onLabelPos?: React.ReactNode;
 }
 
-export function FormInput<T extends FieldValues>(
-  props: Readonly<IFormInputProps<T>>
+export function FormTextarea<T extends FieldValues>(
+  props: Readonly<IFormTextAreaProps<T>>
 ) {
   const {
     name,
@@ -47,8 +49,8 @@ export function FormInput<T extends FieldValues>(
             {onLabelPos}
           </div>
           <FormControl>
-            <Input
-              className="w-full h-[42px] text-xs"
+            <Textarea
+              className="w-full text-xs"
               {...field}
               {...fieldAttributes}
             />

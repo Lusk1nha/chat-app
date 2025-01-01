@@ -1,5 +1,6 @@
 export enum Path {
   Home = "/",
+  DashboardGroup = "/dashboard",
 
   AuthGroup = "/auth",
   Login = "/auth/login",

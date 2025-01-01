@@ -51,6 +51,11 @@ export class AuthService {
     return response;
   }
 
+  async validateSession(): Promise<boolean> {
+    const response = await this._repository.validateSession();
+    return response.valid;
+  }
+
   async forgotPassword(email: string): Promise<void> {
     await this._repository.forgotPassword(email);
   }

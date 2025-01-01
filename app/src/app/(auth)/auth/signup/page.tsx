@@ -18,6 +18,7 @@ import { Path } from "@/shared/enums/Path.enum";
 import { AuthCard } from "../../_components/auth-card";
 import authService from "@/shared/factories/auth-factory";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export default function SignupPage() {
   const form = useForm<SignupValidationType>({
@@ -45,6 +46,10 @@ export default function SignupPage() {
         description: "You have been successfully signed up.",
         richColors: true
       });
+
+      setTimeout(() => {
+        redirect(Path.DashboardGroup);
+      }, 1000);
     } catch (error) {
       toast("Failed to sign up", {
         id: "signup",

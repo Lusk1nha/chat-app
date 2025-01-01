@@ -4,11 +4,9 @@ use crate::{
     config::api_state::ApiState,
     controllers::auth_controllers::{
         login_controller, logout_controller, refresh_token_controller, signup_controller,
-        verify_token_controller,
+        validate_session_controller, verify_token_controller,
     },
-    models::auth_model::{
-        LoginRequest, LogoutRequest, RefreshTokenRequest, SignUpRequest, VerifyTokenRequest,
-    },
+    models::auth_model::{LoginRequest, SignUpRequest},
     utils::{
         errors::ErrorResponse,
         token::is_valid_jwt_token,
@@ -16,7 +14,7 @@ use crate::{
     },
 };
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use axum_extra::extract::cookie::{Cookie, CookieJar};
+use axum_extra::extract::cookie::CookieJar;
 
 pub async fn signup_route(
     jar: CookieJar,
@@ -143,4 +141,32 @@ pub async fn verify_token_route(
     }
 
     verify_token_controller::verify_token_controller(refresh_token, secret, state).await
+}
+
+pub async fn validate_session_route(
+    jar: CookieJar,
+    State(state): State<Arc<ApiState>>,
+) -> Result<impl IntoResponse, ErrorResponse> {
+    let refresh_token = jar
+        .get("refresh_token")
+        .map(|cookie| cookie.value().to_string())
+        .unwrap_or_default();
+
+    let secret = state.environment.jwt_secret.clone();
+
+    if refresh_token.is_empty() {
+        return Err(ErrorResponse {
+            message: "Refresh token is required".to_string(),
+            status_code: StatusCode::BAD_REQUEST,
+        });
+    }
+
+    if !is_valid_jwt_token(&refresh_token, &secret) {
+        return Err(ErrorResponse {
+            message: "Invalid refresh token".to_string(),
+            status_code: StatusCode::UNAUTHORIZED,
+        });
+    }
+
+    validate_session_controller::validate_session_controller(refresh_token, state).await
 }

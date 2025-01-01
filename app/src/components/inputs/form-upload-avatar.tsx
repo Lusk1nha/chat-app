@@ -1,5 +1,9 @@
 import { Control, FieldValues, Path } from "react-hook-form";
 import {
+  IUploadAvatarProps,
+  UploadAvatar
+} from "./upload-avatar/upload-avatar";
+import {
   FormControl,
   FormDescription,
   FormField,
@@ -7,14 +11,14 @@ import {
   FormLabel,
   FormMessage
 } from "../ui/form";
-import { Input } from "../ui/input";
-import { HTMLProps } from "react";
 
-interface IFormInputProps<T extends FieldValues> {
+interface IFormUploadAvatarProps<T extends FieldValues> {
   name: Path<T>;
+
   label: string;
   control: Control<T>;
-  field: HTMLProps<HTMLInputElement>;
+
+  field?: IUploadAvatarProps;
 
   required?: boolean;
 
@@ -23,8 +27,8 @@ interface IFormInputProps<T extends FieldValues> {
   onLabelPos?: React.ReactNode;
 }
 
-export function FormInput<T extends FieldValues>(
-  props: Readonly<IFormInputProps<T>>
+export default function FormUploadAvatar<T extends FieldValues>(
+  props: Readonly<IFormUploadAvatarProps<T>>
 ) {
   const {
     name,
@@ -47,11 +51,7 @@ export function FormInput<T extends FieldValues>(
             {onLabelPos}
           </div>
           <FormControl>
-            <Input
-              className="w-full h-[42px] text-xs"
-              {...field}
-              {...fieldAttributes}
-            />
+            <UploadAvatar {...field} {...fieldAttributes} />
           </FormControl>
 
           {description && <FormDescription>{description}</FormDescription>}

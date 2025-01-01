@@ -12,7 +12,10 @@ use tower::ServiceBuilder;
 
 use crate::{
     api::{
-        auth::{login_route, logout_route, refresh_token_route, signup_route, verify_token_route},
+        auth::{
+            login_route, logout_route, refresh_token_route, signup_route, validate_session_route,
+            verify_token_route,
+        },
         cors::configure_cors,
         root::health_checker,
     },
@@ -46,6 +49,7 @@ fn auth_routes(state: Arc<ApiState>) -> Router {
         .route("/logout", post(logout_route))
         .route("/refresh", post(refresh_token_route))
         .route("/verify", post(verify_token_route))
+        .route("/validate-session", post(validate_session_route))
         .with_state(state)
 }
 

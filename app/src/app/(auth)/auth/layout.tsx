@@ -1,5 +1,3 @@
-"use client";
-
 interface IAuthLayoutProps {
   children: React.ReactNode;
 }
