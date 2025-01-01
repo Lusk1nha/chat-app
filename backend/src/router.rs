@@ -4,7 +4,7 @@ use axum::{
     extract::State,
     middleware::from_fn,
     response::IntoResponse,
-    routing::{get, post},
+    routing::{get, patch, post},
     Router,
 };
 use sqlx::{MySql, Pool};
@@ -17,11 +17,12 @@ use crate::{
             verify_token_route,
         },
         cors::configure_cors,
+        profile::{create_profile_route, find_profile_by_user_id_route, update_profile_route},
         root::health_checker,
     },
     config::{api_state::ApiState, environment::EnvironmentConfig},
     middlewares::auth_middleware::auth_middleware,
-    path::{API_PATH, AUTH_PATH, ROOT_PATH},
+    path::{API_PATH, AUTH_PATH, PROFILE_PATH, ROOT_PATH},
 };
 
 pub async fn generate_routes(config: &EnvironmentConfig, pool: &Pool<MySql>) -> Router {
@@ -35,10 +36,14 @@ pub async fn generate_routes(config: &EnvironmentConfig, pool: &Pool<MySql>) -> 
 
 fn api_routes(state: Arc<ApiState>) -> Router {
     let auth_routes = auth_routes(state.clone());
+    let profile_routes = profile_routes(state.clone());
+
+    println!("{:?}", profile_routes);
 
     Router::new()
         .route(ROOT_PATH, get(health_checker))
         .nest(AUTH_PATH, auth_routes)
+        .nest(PROFILE_PATH, profile_routes)
         .nest("/protected", protected_routes(state))
 }
 
@@ -63,6 +68,14 @@ fn protected_routes(state: Arc<ApiState>) -> Router {
                 async move { auth_middleware(req, next, state).await }
             }
         })))
+        .with_state(state)
+}
+
+fn profile_routes(state: Arc<ApiState>) -> Router {
+    Router::new()
+        .route("/find/:user_id", get(find_profile_by_user_id_route))
+        .route("/create", post(create_profile_route))
+        .route("/update", patch(update_profile_route))
         .with_state(state)
 }
 
