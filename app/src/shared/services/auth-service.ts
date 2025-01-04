@@ -1,12 +1,12 @@
+import { AuthRepository } from "../repositories/auth-repository";
 import {
-  AuthRepository,
   LoginParams,
   LoginResponse,
   LogoutResponse,
   RefreshTokenResponse,
   SignupParams,
   SignupResponse
-} from "../repositories/auth-repository";
+} from "../models/auth-model";
 
 export class AuthService {
   private readonly _repository: AuthRepository;

@@ -4,7 +4,7 @@ use axum::{
     extract::State,
     middleware::from_fn,
     response::IntoResponse,
-    routing::{get, patch, post},
+    routing::{delete, get, patch, post},
     Router,
 };
 use sqlx::{MySql, Pool};
@@ -17,7 +17,10 @@ use crate::{
             verify_token_route,
         },
         cors::configure_cors,
-        profile::{create_profile_route, find_profile_by_user_id_route, update_profile_route},
+        profile::{
+            create_profile_route, delete_profile_route, find_current_profile_route,
+            find_profile_by_id_route, find_profile_by_user_id_route, update_profile_route,
+        },
         root::health_checker,
     },
     config::{api_state::ApiState, environment::EnvironmentConfig},
@@ -37,14 +40,14 @@ pub async fn generate_routes(config: &EnvironmentConfig, pool: &Pool<MySql>) -> 
 fn api_routes(state: Arc<ApiState>) -> Router {
     let auth_routes = auth_routes(state.clone());
     let profile_routes = profile_routes(state.clone());
+    let protected_routes = protected_routes(state.clone());
 
     println!("{:?}", profile_routes);
 
     Router::new()
         .route(ROOT_PATH, get(health_checker))
         .nest(AUTH_PATH, auth_routes)
-        .nest(PROFILE_PATH, profile_routes)
-        .nest("/protected", protected_routes(state))
+        .merge(protected_routes)
 }
 
 fn auth_routes(state: Arc<ApiState>) -> Router {
@@ -59,8 +62,10 @@ fn auth_routes(state: Arc<ApiState>) -> Router {
 }
 
 fn protected_routes(state: Arc<ApiState>) -> Router {
+    let profile_routes = profile_routes(state.clone());
+
     Router::new()
-        .route("/teste", get(teste_route))
+        .nest(PROFILE_PATH, profile_routes)
         .layer(ServiceBuilder::new().layer(from_fn({
             let app_state = state.clone(); // Clone app_state for the async block
             move |req, next| {
@@ -68,14 +73,16 @@ fn protected_routes(state: Arc<ApiState>) -> Router {
                 async move { auth_middleware(req, next, state).await }
             }
         })))
-        .with_state(state)
 }
 
 fn profile_routes(state: Arc<ApiState>) -> Router {
     Router::new()
-        .route("/find/:user_id", get(find_profile_by_user_id_route))
-        .route("/create", post(create_profile_route))
-        .route("/update", patch(update_profile_route))
+        .route("/user/:user_id", get(find_profile_by_user_id_route))
+        .route("/:id", get(find_profile_by_id_route))
+        .route("/currentUser", get(find_current_profile_route))
+        .route("/", post(create_profile_route))
+        .route("/", patch(update_profile_route))
+        .route("/", delete(delete_profile_route))
         .with_state(state)
 }
 

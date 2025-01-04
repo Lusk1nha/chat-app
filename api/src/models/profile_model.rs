@@ -8,8 +8,11 @@ pub struct Profile {
     pub id: String,
     pub user_id: String,
 
+    #[serde(rename = "displayName")]
     pub display_name: String,
     pub bio: Option<String>,
+
+    #[serde(rename = "avatarUrl")]
     pub avatar_url: Option<String>,
 
     pub created_at: DateTime<Utc>,
@@ -23,8 +26,10 @@ pub struct ProfileFindResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateProfileRequest {
+    #[serde(rename = "displayName")]
     pub display_name: String,
     pub bio: Option<String>,
+    #[serde(rename = "avatarUrl")]
     pub avatar_url: Option<String>,
 }
 
@@ -35,8 +40,10 @@ pub struct CreateProfileResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateProfileRequest {
+    #[serde(rename = "displayName")]
     pub display_name: String,
     pub bio: Option<String>,
+    #[serde(rename = "avatarUrl")]
     pub avatar_url: Option<String>,
 }
 

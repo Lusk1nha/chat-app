@@ -1,48 +1,17 @@
-import api from "@/api";
-import { AxiosError } from "axios";
+import api from "@/lib/api";
 
-export interface SignupParams {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+import {
+  SignupResponse,
+  LoginResponse,
+  LogoutResponse,
+  RefreshTokenResponse,
+  ValidateSession
+} from "../models/auth-model";
+import { BaseRepository } from "./base-repository";
 
-export interface SignupResponse {
-  accessToken: string;
-  message: string;
-}
-
-export interface LoginParams {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  accessToken: string;
-  message: string;
-}
-
-export interface LogoutResponse {
-  message: string;
-}
-
-export interface RefreshTokenResponse {
-  accessToken: string;
-  message: string;
-}
-
-export interface ValidateSession {
-  valid: boolean;
-  message: string;
-}
-
-export class AuthRepository {
-  private readonly baseUrl: string = process.env.NEXT_BASE_URL_API as string;
-
+export class AuthRepository extends BaseRepository {
   constructor() {
-    if (!this.baseUrl) {
-      throw new Error("NEXT_BASE_URL_API is not defined");
-    }
+    super();
 
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
@@ -146,17 +115,5 @@ export class AuthRepository {
         "An error occurred while trying to reset the password"
       );
     }
-  }
-
-  private _createErrorMessage(error: unknown, defaultMessage: string): Error {
-    if (error instanceof AxiosError) {
-      return new Error(error.response?.data.message);
-    }
-
-    if (error instanceof Error) {
-      return new Error(error.message);
-    }
-
-    return new Error(defaultMessage);
   }
 }

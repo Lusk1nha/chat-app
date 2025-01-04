@@ -9,6 +9,10 @@ impl ProfileService {
         Self { repository }
     }
 
+    pub async fn find_profile_by_id(&self, id: String) -> Result<Option<Profile>, sqlx::Error> {
+        self.repository.find_profile_by_id(id).await
+    }
+
     pub async fn find_profile_by_user_id(
         &self,
         user_id: String,
@@ -40,5 +44,9 @@ impl ProfileService {
         self.repository
             .update_profile(user_id, display_name, bio, avatar_url)
             .await
+    }
+
+    pub async fn delete_profile(&self, id: String) -> Result<(), sqlx::Error> {
+        self.repository.delete_profile(id).await
     }
 }

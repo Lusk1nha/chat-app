@@ -11,6 +11,18 @@ impl ProfileRepository {
         Self { pool }
     }
 
+    pub async fn find_profile_by_id(&self, id: String) -> Result<Option<Profile>, sqlx::Error> {
+        const QUERY: &str =
+            "SELECT id, user_id, display_name, bio, avatar_url, created_at, updated_at FROM profiles WHERE id = ?";
+
+        let profile = sqlx::query_as::<_, Profile>(QUERY)
+            .bind(id)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        Ok(profile)
+    }
+
     pub async fn find_profile_by_user_id(
         &self,
         user_id: String,
@@ -46,7 +58,7 @@ impl ProfileRepository {
             .execute(&self.pool)
             .await?;
 
-        const GET_PROFILE_QUERY: &str = "SELECT id, user_id, display_name, bio, avatar_url, created_at, updated_at FROM profiles WHERE user_id = ?";
+        const GET_PROFILE_QUERY: &str = "SELECT id, user_id, display_name, bio, avatar_url, created_at, updated_at FROM profiles WHERE id = ?";
 
         let profile = sqlx::query_as::<_, Profile>(GET_PROFILE_QUERY)
             .bind(id)
@@ -82,5 +94,13 @@ impl ProfileRepository {
             .await?;
 
         Ok(profile)
+    }
+
+    pub async fn delete_profile(&self, id: String) -> Result<(), sqlx::Error> {
+        const QUERY: &str = "DELETE FROM profiles WHERE id = ?";
+
+        sqlx::query(QUERY).bind(&id).execute(&self.pool).await?;
+
+        Ok(())
     }
 }

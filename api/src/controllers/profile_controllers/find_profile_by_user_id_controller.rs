@@ -8,7 +8,7 @@ use crate::{
     utils::errors::ErrorResponse,
 };
 
-pub async fn find_profile_controller(
+pub async fn find_profile_by_user_id_controller(
     user_id: String,
     state: Arc<ApiState>,
 ) -> Result<impl IntoResponse, ErrorResponse> {
@@ -25,7 +25,7 @@ pub async fn find_profile_controller(
 
     if profile.is_none() {
         return Err(ErrorResponse {
-            message: "Profile not found".to_string(),
+            message: "Profile not found with this user id".to_string(),
             status_code: StatusCode::NOT_FOUND,
         });
     }

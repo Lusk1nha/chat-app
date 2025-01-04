@@ -1,6 +1,7 @@
 import axios from "axios";
-import authService from "./shared/factories/auth-factory";
-import { Path } from "./shared/enums/Path.enum";
+
+import { Path } from "@/shared/enums/Path.enum";
+import authService from "@/shared/factories/auth-factory";
 
 const api = axios.create({
   baseURL: process.env.NEXT_BASE_URL_API,

@@ -1,12 +1,10 @@
-"use client";
-
 import { Sidebar } from "@/components/sidebar/sidebar";
 
 interface IDashboardLayoutProps {
   children: React.ReactNode;
 }
 
-export default function DashboardLayout(
+export default async function DashboardLayout(
   props: Readonly<IDashboardLayoutProps>
 ) {
   const { children } = props;
